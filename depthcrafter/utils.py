@@ -1,7 +1,5 @@
 import numpy as np
 import cv2
-import matplotlib.cm as cm
-import torch
 
 dataset_res_dict = {
     "sintel":[448, 1024],
@@ -80,30 +78,3 @@ def save_video(
 
     video_writer.release()
     return output_video_path
-
-
-class ColorMapper:
-    # a color mapper to map depth values to a certain colormap
-    def __init__(self, colormap: str = "inferno"):
-        self.colormap = torch.tensor(cm.get_cmap(colormap).colors)
-
-    def apply(self, image: torch.Tensor, v_min=None, v_max=None):
-        # assert len(image.shape) == 2
-        if v_min is None:
-            v_min = image.min()
-        if v_max is None:
-            v_max = image.max()
-        image = (image - v_min) / (v_max - v_min)
-        image = (image * 255).long()
-        image = self.colormap[image]
-        return image
-
-
-def vis_sequence_depth(depths: np.ndarray, v_min=None, v_max=None):
-    visualizer = ColorMapper()
-    if v_min is None:
-        v_min = depths.min()
-    if v_max is None:
-        v_max = depths.max()
-    res = visualizer.apply(torch.tensor(depths), v_min=v_min, v_max=v_max).numpy()
-    return res

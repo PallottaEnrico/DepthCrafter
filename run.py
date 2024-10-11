@@ -1,13 +1,12 @@
 import gc
 import os
-import numpy as np
 import torch
 import argparse
 from diffusers.training_utils import set_seed
 
 from depthcrafter.depth_crafter_ppl import DepthCrafterPipeline
 from depthcrafter.unet import DiffusersUNetSpatioTemporalConditionModelDepthCrafter
-from depthcrafter.utils import vis_sequence_depth, save_video, read_video_frames
+from depthcrafter.utils import save_video, read_video_frames
 
 
 class DepthCrafterDemo:
