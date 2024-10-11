@@ -35,6 +35,8 @@ if __name__ == "__main__":
 
     if args.second_half:
         subfolders = subfolders[len(subfolders)//2:]
+    else:
+        subfolders = subfolders[:len(subfolders)//2]
 
     for subfolder in subfolders:
         subfolder_path = os.path.join(args.video_folder, subfolder)
