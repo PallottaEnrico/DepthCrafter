@@ -17,6 +17,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--steps", type=int, default=10, help="Number of denoising steps"
     )
+    parser.add_argument(
+        "--second-half", action="store_true", help="Process the second half of the videos")
 
     args = parser.parse_args()
 
@@ -28,7 +30,13 @@ if __name__ == "__main__":
 
     # process the videos, the video paths are separated by comma
     video_paths = []
-    for subfolder in os.listdir(args.video_folder):
+
+    subfolders = sorted(os.listdir(args.video_folder))
+
+    if args.second_half:
+        subfolders = subfolders[len(subfolders)//2:]
+
+    for subfolder in subfolders:
         subfolder_path = os.path.join(args.video_folder, subfolder)
         if os.path.isdir(subfolder_path):
             video_paths.extend(
