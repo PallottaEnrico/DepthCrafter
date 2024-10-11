@@ -54,7 +54,6 @@ class DepthCrafterDemo:
         video: str,
         num_denoising_steps: int,
         guidance_scale: float,
-        save_folder: str = "./demo_output",
         window_size: int = 110,
         process_length: int = 195,
         overlap: int = 25,
@@ -66,6 +65,9 @@ class DepthCrafterDemo:
         save_npz: bool = False,
     ):
         set_seed(seed)
+
+        save_path = video.replace("rgb", "depth")
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
         frames, target_fps = read_video_frames(
             video, process_length, target_fps, max_res, dataset,
@@ -89,18 +91,8 @@ class DepthCrafterDemo:
         res = res.sum(-1) / res.shape[-1]
         # normalize the depth map to [0, 1] across the whole video
         res = (res - res.min()) / (res.max() - res.min())
-        # visualize the depth map and save the results
-        vis = vis_sequence_depth(res)
-        # save the depth map and visualization with the target FPS
-        save_path = os.path.join(
-            save_folder, os.path.splitext(os.path.basename(video))[0]
-        )
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        if save_npz:
-            np.savez_compressed(save_path + ".npz", depth=res)
-        save_video(res, save_path + "_depth.mp4", fps=target_fps)
-        save_video(vis, save_path + "_vis.mp4", fps=target_fps)
-        save_video(frames, save_path + "_input.mp4", fps=target_fps)
+
+        save_video(res, save_path, fps=target_fps)
         return [
             save_path + "_input.mp4",
             save_path + "_vis.mp4",
@@ -179,10 +171,10 @@ if __name__ == "__main__":
     parser.add_argument("--overlap", type=int, default=25, help="Overlap size")
     parser.add_argument("--max-res", type=int, default=1024, help="Maximum resolution")
     parser.add_argument(
-        "--dataset", 
-        type=str, 
-        default="open", 
-        choices=["open", "sintel", "scannet", "kitti", "bonn", 'nyu'], 
+        "--dataset",
+        type=str,
+        default="open",
+        choices=["open", "sintel", "scannet", "kitti", "bonn", 'nyu'],
         help="Assigned resolution for specific dataset evaluation"
     )
     parser.add_argument("--save_npz", type=bool, default=True, help="Save npz file")

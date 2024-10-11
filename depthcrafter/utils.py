@@ -11,6 +11,9 @@ dataset_res_dict = {
     "nyu":[448, 640],
 }
 
+h = 240
+half = 40
+
 def read_video_frames(video_path, process_length, target_fps, max_res, dataset):
     # a simple function to read video frames
     cap = cv2.VideoCapture(video_path)
@@ -44,7 +47,9 @@ def read_video_frames(video_path, process_length, target_fps, max_res, dataset):
         if not ret or (process_length > 0 and frame_count >= process_length):
             break
         if frame_count % stride == 0:
-            frame = cv2.resize(frame, (width, height))
+            # First do UCF preprocessing
+            frame = frame[:, half:half+h, :]
+            frame = cv2.resize(frame, (256, 256))
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
             frames.append(frame.astype("float32") / 255.0)
         frame_count += 1
