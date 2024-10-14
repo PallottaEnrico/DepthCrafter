@@ -1,12 +1,14 @@
 import gc
 import os
+
+import cv2
 import torch
 import argparse
 from diffusers.training_utils import set_seed
 
 from depthcrafter.depth_crafter_ppl import DepthCrafterPipeline
 from depthcrafter.unet import DiffusersUNetSpatioTemporalConditionModelDepthCrafter
-from depthcrafter.utils import save_video, read_video_frames
+from depthcrafter.utils import save_video, read_video_frames, read_img_frames
 
 
 class DepthCrafterDemo:
@@ -61,17 +63,22 @@ class DepthCrafterDemo:
         target_fps: int = 15,
         seed: int = 42,
         track_time: bool = True,
-        save_npz: bool = False,
+        imgs: bool = False,
     ):
         set_seed(seed)
 
-        save_path = video.replace("rgb", "depth")
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-
-        frames, target_fps = read_video_frames(
-            video, process_length, target_fps, max_res, dataset,
-        )
-        print(f"==> video name: {video}, frames shape: {frames.shape}")
+        if imgs:
+            save_path = [v.replace("rgb", "depth_crafter") for v in video]
+            os.makedirs(os.path.dirname(save_path[0]), exist_ok=True)
+            frames = read_img_frames(video)
+            print(f"==> video name: {video[0]}, frames shape: {frames.shape}")
+        else:
+            save_path = video.replace("rgb", "depth_crafter")
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            frames, target_fps = read_video_frames(
+                video, process_length, target_fps, max_res, dataset,
+            )
+            print(f"==> video name: {video}, frames shape: {frames.shape}")
 
         # inference the depth map using the DepthCrafter pipeline
         with torch.inference_mode():
@@ -91,12 +98,11 @@ class DepthCrafterDemo:
         # normalize the depth map to [0, 1] across the whole video
         res = (res - res.min()) / (res.max() - res.min())
 
-        save_video(res, save_path, fps=target_fps)
-        return [
-            save_path + "_input.mp4",
-            save_path + "_vis.mp4",
-            save_path + "_depth.mp4",
-        ]
+        if imgs:
+            for i, path in enumerate(save_path):
+                cv2.imwrite(path, (res[i] * 255).astype("uint8"))
+        else:
+            save_video(res, save_path, fps=target_fps)
 
     def run(
         self,

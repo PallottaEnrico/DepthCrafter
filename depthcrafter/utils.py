@@ -57,6 +57,18 @@ def read_video_frames(video_path, process_length, target_fps, max_res, dataset):
     return frames, target_fps
 
 
+def read_img_frames(frames_paths, resolution=256):
+    # a simple function to read image frames
+    frames = []
+    for frame_path in frames_paths:
+        frame = cv2.imread(frame_path)
+        frame = cv2.resize(frame, (resolution, resolution))
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
+        frames.append(frame.astype("float32") / 255.0)
+    frames = np.array(frames)
+    return frames
+
+
 def save_video(
     video_frames,
     output_video_path,
