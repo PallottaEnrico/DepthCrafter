@@ -100,9 +100,10 @@ class DepthCrafterDemo:
         res = (res - res.min()) / (res.max() - res.min())
 
         if imgs:
+            res = (res * 255).astype("uint8")
             for i, path in enumerate(save_path):
-                res[i] = cv2.resize((res[i] * 255).astype("uint8"), (save_res, save_res))
-                cv2.imwrite(path, res[i])
+                final = cv2.resize(res[i], (save_res, save_res))
+                cv2.imwrite(path, final)
         else:
             save_video(res, save_path, fps=target_fps)
 
