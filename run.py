@@ -64,6 +64,7 @@ class DepthCrafterDemo:
         seed: int = 42,
         track_time: bool = True,
         imgs: bool = False,
+        save_res: int = 256,
     ):
         set_seed(seed)
 
@@ -100,7 +101,8 @@ class DepthCrafterDemo:
 
         if imgs:
             for i, path in enumerate(save_path):
-                cv2.imwrite(path, (res[i] * 255).astype("uint8"))
+                res[i] = cv2.resize((res[i] * 255).astype("uint8"), (save_res, save_res))
+                cv2.imwrite(path, res[i])
         else:
             save_video(res, save_path, fps=target_fps)
 

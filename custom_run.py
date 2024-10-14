@@ -15,6 +15,7 @@ if __name__ == "__main__":
     parser.add_argument("--steps", type=int, default=10, help="Number of denoising steps")
     parser.add_argument("--second-half", action="store_true", help="Process the second half of the videos")
     parser.add_argument("--imgs", action="store_true", help="Video made of images")
+    parser.add_argument("--save-res", type=int, default=256, help="Save resolution")
 
     args = parser.parse_args()
 
@@ -67,6 +68,7 @@ if __name__ == "__main__":
             seed=42,
             track_time=True,
             imgs=args.imgs,
+            save_res=args.save_res
         )
         # clear the cache for the next video
         gc.collect()
